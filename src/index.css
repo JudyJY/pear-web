@@ -8,4 +8,8 @@ body {
   height: 32px;
   background: rgba(255,255,255,.2);
   margin: 16px;
+  line-height: 32px;
+  color: white;
+  text-align: center;
+  font-weight: 400;
 }

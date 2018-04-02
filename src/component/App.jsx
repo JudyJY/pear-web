@@ -1,54 +1,47 @@
 import React, { Component } from 'react'
-import logo from '../logo.svg'
-import { Layout, Menu, Breadcrumb, Icon, message as notification, Avatar } from 'antd'
+import { Layout, Menu, Icon, Avatar } from 'antd'
 import LoginForm from './Login'
 import { connect } from 'react-redux'
 import { withRouter, Link } from 'react-router-dom'
-import { fetchLogin } from '../actions'
-import cookie from 'react-cookie'
+import { fetchLogin, fetchUserInfo } from '../actions'
 
 const { SubMenu } = Menu;
 const { Header, Content, Sider, Footer } = Layout;
 
 class App extends Component {
   constructor(props){
-    super(props)    
-    console.log(document.cookie)    
+    super(props)
     this.state = {
       loadingProgressBar: null,
       collapsed: false,
       currentMenu: ['1']
     }
+    const { uId } = this.props.auth
+    if (uId > 0) {
+      this.props.fetchUser(uId)
+    }
   }
 
   componentWillReceiveProps(nextProrps) {
-    if(nextProrps.auth.isFetching){
-      const hide = notification.loading('登录中...', 0)
-      this.setState({loadingProgressBar: hide})
-    }else{
-      const {loadingProgressBar} = this.state
-      if(loadingProgressBar){
-        loadingProgressBar()
-      }
-    }
+
   }
 
   toggle = () => {
     this.setState({collapsed: !this.state.collapsed})
   }
 
-  handleMenuClick = (e) => {    
+  handleMenuClick = (e) => {
     this.setState({currentMenu: [e.key]})
     this.props.history.push(e.key === '1' ? '/': e.key)
   }
 
-  handleSignup = (e) => {    
+  handleSignup = (e) => {
     this.props.history.push('/signup')
   }
 
-  handleLogin = (e) => {    
+  handleLogin = (e) => {
     this.formRef.props.form.validateFields((err, values) => {
-      if (!err) {        
+      if (!err) {
         const user = {
           account: values.account,
           password: values.password
@@ -72,12 +65,14 @@ class App extends Component {
     const { currentMenu } = this.state
     return (
       <Layout style={{ minHeight: '100vh' }}>
-      <Sider        
+      <Sider
         collapsible
         collapsed={this.state.collapsed}
         onCollapse={this.toggle}
       >
-        <div className="logo" />
+        <div className="logo">
+          <p>Pear</p>
+        </div>
         <Menu theme="dark" defaultSelectedKeys={currentMenu} selectedKeys={currentMenu} mode="inline" onClick={this.handleMenuClick}>
           <Menu.Item key="1">
             <Icon type="desktop" />
@@ -92,8 +87,8 @@ class App extends Component {
             title={<span><Icon type="user" /><span>个人中心</span></span>}
           >
             <Menu.Item key="/user/history">操作记录</Menu.Item>
-            <Menu.Item key="/user/info">信息修改</Menu.Item>            
-          </SubMenu>          
+            <Menu.Item key="/user/info">信息修改</Menu.Item>
+          </SubMenu>
           <Menu.Item key="/about">
             <Icon type="file" />
             <span>关于我们</span>
@@ -119,7 +114,7 @@ class App extends Component {
           onCreate={this.handleLogin}
         />
       </Layout>
-    </Layout>       
+    </Layout>
     );
   }
 }
@@ -129,9 +124,12 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return {    
-    login: function (user) {
+  return {
+    login: (user) => {
       dispatch(fetchLogin(user))
+    },
+    fetchUser: (uId) => {
+      dispatch(fetchUserInfo(uId))
     }
   }
 }
