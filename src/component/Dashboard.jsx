@@ -1,16 +1,22 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
-import {Button, Table, Icon, Divider, Card } from 'antd'
+import {Button, Table, Card, Tag  } from 'antd'
 import {fetchDashboard} from '../actions'
 
 class Dashboard extends Component {
 
   constructor(props) {
     super(props)
+    this.state = {}
   }
 
   componentWillMount() {
     this.props.fetchDashboard()
+  }
+
+  handleCreateCrawler = (index) => {
+    const source = this.props.crawlers[index].source
+    this.props.history.push('/crawler/'+source)
   }
 
   render() {
@@ -18,8 +24,7 @@ class Dashboard extends Component {
       {
         title: '任务编号',
         dataIndex: 'id',
-        key: 'id',
-        render: text => <a href="#">{text}</a>
+        key: 'id'        
       }, {
         title: '爬虫类型',
         dataIndex: 'type',
@@ -39,34 +44,40 @@ class Dashboard extends Component {
       }, {
         title: '状态',
         key: 'status',
-        render: (text, record) => (<span>{record.status > 0 ? <Icon type="check" >完成</Icon> : <Icon type="loading" >进行中</Icon>}</span>)
+        render: (text, record) => (
+          <div>
+            {record.status === 1 && <Tag color="#108ee9">完成</Tag>}
+            {record.status === 0 && <Tag color="#87d068">进行中</Tag>}
+            {record.status === -1 && <Tag color="rgb(246, 152, 153)">失败</Tag>}
+          </div>
+        )
       }, {
         title: '进度',
         key: 'process',
         render: (text, record) => (<span>{record.current / record.total * 100}%</span>)
       }
     ]
-
-    const data = this.props.tasks.map((e,index)=>{
+    const {crawlers, crawler_tasks, analyse_tasks, isFetching} = this.props
+    const crawler_tasks_data = crawler_tasks.map((e,index) => {
       return Object.assign({}, e, {key: index})
     })
-    const {crawlers} = this.props
+    const analyse_tasks_data = analyse_tasks.map((e,index) => {
+      return Object.assign({}, e, {key: index})
+    })
 
     return (
       <div>
-        <Card title="爬虫任务列表" bordered={true} style={{ width: '100%' }}>
-          <Table columns={columns} dataSource={data} size="middle" loading={this.props.isFetching}/>
+        <Card title="创建爬虫任务">
+          {crawlers.map((e,index) => {
+            return <Button key={index} type="primary" icon="plus" size="large" style={{marginRight: 20}} onClick={()=>this.handleCreateCrawler(index)}>{e.name}</Button>
+          })}
         </Card>
-        <Card title="数据分析任务列表" bordered={true} style={{ width: '100%' , marginTop: 20 }}>
-          <Table columns={columns} dataSource={data} size="middle" loading={this.props.isFetching}/>
+        <Card loading={isFetching} hoverable title="爬虫任务列表" bordered={true} style={{ width: '100%', marginTop: 20 }}>
+          <Table columns={columns} dataSource={crawler_tasks_data} size="middle" loading={isFetching}/>
         </Card>
-        <div style={{ marginTop: 20 }}>
-          <Card title="创建爬虫任务">
-            {crawlers.map((e,index) => {
-              return <Button key={index} type="primary" icon="plus" size="large" style={{marginRight: 20}}>{e.name}</Button>
-            })}
-          </Card>
-        </div>
+        <Card loading={isFetching} hoverable title="数据分析任务列表" bordered={true} style={{ width: '100%' , marginTop: 20 }}>
+          <Table columns={columns} dataSource={analyse_tasks_data} size="middle" loading={isFetching}/>
+        </Card>
       </div>
     );
   }

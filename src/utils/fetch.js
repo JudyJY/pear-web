@@ -2,17 +2,34 @@ import fetch from 'cross-fetch'
 
 const baseUrl = 'http://localhost:9999/'
 
-export default (endPoint, method, data=null) => {
+export default (endPoint, method, data = null) => {
+  // data should -> {}
+  if (endPoint.search('http://') === 0 || endPoint.search('https://') === 0) {
+    return fetch(endPoint, method)
+  }
   let config = {
     'method': method,
     'headers': {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "http://localhost:3000"
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': 'http://localhost:3000'
     },
     'credentials': 'include'
   }
-  if (method === 'POST') {
-    config['body'] = JSON.stringify(data)
+  let url = baseUrl + endPoint
+  if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+    if (data !== null) {
+      config['body'] = JSON.stringify(data)
+    }
   }
-  return fetch(baseUrl + endPoint, config)
+  if (method === 'GET' && data !== null) {
+    url += '?'
+    for (const key of Object.keys(data)) {
+      const value = data[key]
+      url += key
+      url += '='
+      url += value
+      url += '&'
+    }
+  }
+  return fetch(url, config)
 }

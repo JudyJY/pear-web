@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
-import { Layout, Menu, Icon, Avatar } from 'antd'
+import { Layout, Menu, Icon, Avatar, Button, BackTop, Dropdown } from 'antd'
 import LoginForm from './Login'
 import { connect } from 'react-redux'
-import { withRouter, Link } from 'react-router-dom'
-import { fetchLogin, fetchUserInfo } from '../actions'
+import { withRouter } from 'react-router-dom'
+import { fetchLogin, fetchUserInfo, logout } from '../actions'
+import logo from '../logo.svg'
 
 const { SubMenu } = Menu;
 const { Header, Content, Sider, Footer } = Layout;
@@ -13,10 +14,9 @@ class App extends Component {
     super(props)
     this.state = {
       loadingProgressBar: null,
-      collapsed: false,
-      currentMenu: ['1']
+      collapsed: false
     }
-    const { uId } = this.props.auth
+    const { uId } = this.props
     if (uId > 0) {
       this.props.fetchUser(uId)
     }
@@ -31,8 +31,7 @@ class App extends Component {
   }
 
   handleMenuClick = (e) => {
-    this.setState({currentMenu: [e.key]})
-    this.props.history.push(e.key === '1' ? '/': e.key)
+    this.props.history.push(e.key)
   }
 
   handleSignup = (e) => {
@@ -51,9 +50,8 @@ class App extends Component {
     })
   }
 
-  handleClickAvatar = (e) => {
-    this.setState({currentMenu: ['/user/info']})
-    this.props.history.push('/user/info')
+  handleLogout = () => {
+    this.props.logout()
   }
 
   saveFormRef = (formRef) => {
@@ -61,23 +59,35 @@ class App extends Component {
   }
 
   render() {
-    const { children, auth:{login}} = this.props
-    const { currentMenu } = this.state
+    const { children, logined, name } = this.props    
     return (
-      <Layout style={{ minHeight: '100vh' }}>
+      <Layout style={{ minHeight: '100vh' }} theme="light">
+      <BackTop target={() => document.getElementById('content')}/>
       <Sider
         collapsible
         collapsed={this.state.collapsed}
         onCollapse={this.toggle}
+        style={{ overflow: 'auto', height: '100vh', left: 0, background: '#fff'}}
+        trigger={null}
       >
         <div className="logo">
-          <p>Pear</p>
+          <img src={logo} alt="logo"/>
+          {!this.state.collapsed && <span>Spider</span>}
         </div>
-        <Menu theme="dark" defaultSelectedKeys={currentMenu} selectedKeys={currentMenu} mode="inline" onClick={this.handleMenuClick}>
-          <Menu.Item key="1">
+        <Menu theme="light"
+          defaultSelectedKeys={[this.props.location.pathname]}
+          selectedKeys={[this.props.location.pathname]}
+          mode="inline" onClick={this.handleMenuClick}>
+          <Menu.Item key="/dashborad">
             <Icon type="desktop" />
             <span>概览</span>
           </Menu.Item>
+          <SubMenu
+            key="/crawlers"
+            title={<span><Icon type="rocket" /><span>爬虫</span></span>}>
+            <Menu.Item key="/crawler/ele">饿了么爬虫</Menu.Item>
+            <Menu.Item key="/crawler/meituan">美团爬虫</Menu.Item>
+          </SubMenu>
           <Menu.Item key="/task">
             <Icon type="desktop" />
             <span>任务进度</span>
@@ -95,13 +105,32 @@ class App extends Component {
           </Menu.Item>
         </Menu>
       </Sider>
-      <Layout>
-        <Header style={{ background: '#fff', padding: 0 }}>
-          { login && <div style={{textAlign: 'right', paddingRight: '10px'}}><Link to='/user/info'><Avatar style={{ backgroundColor: '#87d068' }} icon="user"/></Link></div>}
+      <Layout style={{height: '100vh', overflow: 'scroll'}} id="content">
+        <Header style={{ padding: 0, background: '#fff' }}>
+          <div style={{float: 'left'}}>
+          <Button
+              className="trigger"
+              icon={this.state.collapsed ? 'menu-unfold' : 'menu-fold'}
+              onClick={this.toggle}
+              style={{marginLeft: 10, border: 'none', width: 48}}/>
+          </div>
+          { logined &&
+            <div style={{textAlign: 'right', paddingRight: '10px'}}>
+              <Dropdown overlay={
+                  <Menu onClick={this.handleLogout}>
+                    <Menu.Item>
+                      注销
+                    </Menu.Item>
+                  </Menu>
+                }>
+                <Avatar>{name}</Avatar>
+              </Dropdown>
+            </div>
+          }
         </Header>
-        <Content style={{ margin: '16px 16px' }}>
-          <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
-            {children}
+        <Content style={{margin: "16px 0"}}>
+          <div style={{ padding: 24, minHeight: 360 }}>
+            {logined && children}
           </div>
         </Content>
         <Footer style={{ textAlign: 'center' }}>
@@ -109,7 +138,7 @@ class App extends Component {
         </Footer>
         <LoginForm
           wrappedComponentRef={this.saveFormRef}
-          visible={!login}
+          visible={!logined}
           onCancel={this.handleSignup}
           onCreate={this.handleLogin}
         />
@@ -120,7 +149,7 @@ class App extends Component {
 }
 
 function mapStateToProps(state) {
-  return Object.assign({}, state)
+  return Object.assign({}, state.auth)
 }
 
 function mapDispatchToProps(dispatch) {
@@ -130,6 +159,9 @@ function mapDispatchToProps(dispatch) {
     },
     fetchUser: (uId) => {
       dispatch(fetchUserInfo(uId))
+    },
+    logout: () => {
+      dispatch(logout())
     }
   }
 }
