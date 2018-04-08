@@ -3,7 +3,7 @@ import { Layout, Menu, Icon, Avatar, Button, BackTop, Dropdown } from 'antd'
 import LoginForm from './Login'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
-import { fetchLogin, fetchUserInfo, logout } from '../actions'
+import { fetchLogin, fetchUserInfo, logout } from '../actions/index'
 import logo from '../logo.svg'
 
 const { SubMenu } = Menu;
@@ -20,10 +20,6 @@ class App extends Component {
     if (uId > 0) {
       this.props.fetchUser(uId)
     }
-  }
-
-  componentWillReceiveProps(nextProrps) {
-
   }
 
   toggle = () => {
@@ -59,7 +55,7 @@ class App extends Component {
   }
 
   render() {
-    const { children, logined, name } = this.props    
+    const { children, logined, name, isFetching } = this.props    
     return (
       <Layout style={{ minHeight: '100vh' }} theme="light">
       <BackTop target={() => document.getElementById('content')}/>
@@ -141,6 +137,7 @@ class App extends Component {
           visible={!logined}
           onCancel={this.handleSignup}
           onCreate={this.handleLogin}
+          isFetching={isFetching}
         />
       </Layout>
     </Layout>
@@ -149,7 +146,7 @@ class App extends Component {
 }
 
 function mapStateToProps(state) {
-  return Object.assign({}, state.auth)
+  return Object.assign({}, state.user)
 }
 
 function mapDispatchToProps(dispatch) {

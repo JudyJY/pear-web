@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
-import { Row, Col, Select, Card, Input, Popover, Button, Tabs, Modal, List, Cascader, Spin, Icon } from 'antd'
-
+import { Row, Col, Select, Card, Input, Popover, Button, Tabs, Modal, List, Cascader, Spin, Icon, AutoComplete, Tree, message } from 'antd'
 
 const TabPane = Tabs.TabPane
 const { Option, OptGroup } = Select
@@ -10,63 +9,82 @@ export default class CrawlerConfig extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            selectCity: null
+            addressModalVisible: false,
+            selectedAddress: null
         }
     }
 
-    componentWillMount() {
-        this.props.fetchEleCityList()
+    handleSearch = (value) => {
+        if (!value || value.length < 1) {
+            message.error('输入为空')
+            return
+        }
+        this.props.searchEleAddress(value)
+        this.setState({ addressModalVisible: true })
     }
 
-    toggleCityListModal = () => {
-        this.setState({ showCityList: !this.state.showCityList })
-    }
-
-    selectedCity = (item) => {
-        this.toggleCityListModal()
-        this.setState({ selectCity: item })
-        console.log(item)
+    onSelectAddress = (value) => {
+        this.setState({
+            addressModalVisible: false,
+            selectedAddress: value
+        })
     }
 
     render() {
-        const { eleCities, isFetchingEleCity } = this.props
-        const { selectCity } = this.state
-        const options = eleCities && Object.keys(eleCities).map((key, index) => {
-            return {
-                value: key,
-                label: key,
-                children: eleCities[key].map((item, index) => {
-                    return {
-                        value: item,
-                        label: item.name
-                    }
-                })
-            }
-        })
-        const filter = (inputValue, path) => {
-            return (path.some(option => (option.label).indexOf(inputValue) > -1))
-        }
-        const displayRender = (label) => {
-            return label[label.length - 1]
-        }
-        const cityList = (
-            <Cascader options={options} placeholder="选择一个城市" disabled={isFetchingEleCity} showSearch={{ filter }} expandTrigger="hover"
-                displayRender={displayRender} />
-        )
-
+        const { isSearchEleAddress, address } = this.props
+        const { selectedAddress } = this.state
         return (
             <div>
-                <Card title="确定爬取商家" style={{ marginTop: 10 }}>
+                <Card title="确定商圈" style={{ marginTop: 10 }}>
                     <Row>
-                        <Col span={6}>
-                            {
-                                isFetchingEleCity ? <Spin spinning={isFetchingEleCity} indicator={<Icon type="loading" style={{ fontSize: 24 }} spin />} /> : cityList
-                            }
+                        <Col span={12}>
+                            商家所属商圈: {selectedAddress ?
+                                <Tree
+                                    defaultExpandAll>
+                                    {Object.keys(selectedAddress).map((key, index) => {
+                                        const value = selectedAddress[key]
+                                        return <Tree.TreeNode title={key} key={key}>
+                                            <Tree.TreeNode title={value} key={value} />
+                                        </Tree.TreeNode>
+                                    })}
+                                </Tree> : <div>请在右侧搜索确定 <Icon type="arrow-right" /></div>}
                         </Col>
-                        <Col span={16}>
-                            <Input placeholder="输入你的目标店名" />
+                        <Col span={12}>
+                            <div style={{ width: 400 }}>
+                                <Input.Search
+                                    placeholder={"输入搜索地点"}
+                                    onSearch={this.handleSearch}
+                                    enterButton
+                                />
+
+                                <Modal
+                                    title="选择地点"
+                                    visible={this.state.addressModalVisible}
+                                    footer={null}
+                                    closable
+                                    destroyOnClose
+                                >
+                                    <div style={{ maxHeight: 300, overflow: 'auto' }}>
+                                        {address ?
+                                            <List
+                                                itemLayout="horizontal"
+                                                dataSource={address}
+                                                renderItem={item => (
+                                                    <List.Item>
+                                                        <List.Item.Meta
+                                                            title={<Button key={item.id} value={item} onClick={() => this.onSelectAddress(item)}>{item.name}</Button>}
+                                                            description={item.address}
+                                                        />
+                                                    </List.Item>
+                                                )}
+                                            /> : <Spin spinning={isSearchEleAddress} indicator={<Icon type="loading" style={{ fontSize: 24 }} spin />} />}
+                                    </div>
+                                </Modal>
+                            </div>
                         </Col>
                     </Row>
+                </Card>
+                <Card title="确定商家" style={{ marginTop: 10 }}>
                 </Card>
             </div>
         )

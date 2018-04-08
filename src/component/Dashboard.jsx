@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import {Button, Table, Card, Tag  } from 'antd'
-import {fetchDashboard} from '../actions'
+import {fetchDashboard} from '../actions/index'
 
 class Dashboard extends Component {
 

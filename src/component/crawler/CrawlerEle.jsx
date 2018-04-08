@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Steps, Card } from 'antd'
 import { connect } from 'react-redux'
 import LoginForm from './LoginForm'
-import { getEleSmsCode, error, loginEle, elePicCode, fetchCrawlerConfig, fetchEleCityList } from '../../actions'
+import { getEleSmsCode, error, loginEle, elePicCode, fetchCrawlerConfig, fetchEleCityList, searchEleAddress } from '../../actions/index'
 import CrawlerConfig from './CrawlerConfig'
 
 const Step = Steps.Step
@@ -141,6 +141,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     fetchEleCityList: () => {
       return dispatch(fetchEleCityList())
+    },
+    searchEleAddress: (keyword) => {
+      return dispatch(searchEleAddress(keyword))
     }
   }
 }
