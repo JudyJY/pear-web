@@ -1,32 +1,6 @@
 import fetch from '../utils/fetch'
-import { REQUEST_ELE_RESTAURANTS, RECEIVE_ELE_RESTAURANTS, REQUEST_CRAWLER_CONFIG, RECEIVE_CRAWLER_CONFIG, REQUEST_DASHBOARD, RECEIVE_DASHBOARD, REQUEST_ELE_CITY_LIST, RECEIVE_ELE_CITY_LIST, REQUEST_ELE_PIC_CODE, RECEIVE_ELE_PIC_CODE, REQUEST_ELE_SMS_CODE, RECEIVE_ELE_SMS_CODE, REQUEST_LOGIN_ELE, RECEIVE_LOGIN_ELE, REQUEST_SEARCH_ELE_ADDRESS, RECEIVE_SEARCH_ELE_ADDRESS } from '../consts/actions'
+import { REQUEST_CRAWLER_CONFIG, RECEIVE_CRAWLER_CONFIG, REQUEST_ELE_CITY_LIST, RECEIVE_ELE_CITY_LIST, REQUEST_ELE_PIC_CODE, RECEIVE_ELE_PIC_CODE, REQUEST_ELE_SMS_CODE, RECEIVE_ELE_SMS_CODE, REQUEST_LOGIN_ELE, RECEIVE_LOGIN_ELE, REQUEST_SEARCH_ELE_ADDRESS, RECEIVE_SEARCH_ELE_ADDRESS,REQUEST_ELE_RESTAURANTS, RECEIVE_ELE_RESTAURANTS } from '../consts/actions'
 import {requestError} from './comm'
-
-const requestEleRstraurants = () => {
-  return {type: REQUEST_ELE_RESTAURANTS}
-}
-const receiveEleRestaurants = (data) => {
-  return {type: RECEIVE_ELE_RESTAURANTS, data}
-}
-
-export function fetchEleRestaurants (data) {
-  return dispatch => {
-    dispatch(requestEleRstraurants())
-    return fetch(`crawlers/get_ele_restaurants`, 'POST', data)
-      .then(resp => {
-        if (resp.status === 200) {
-          return resp.json().then(json => {
-            return dispatch(receiveEleRestaurants(json))
-          })
-        } else {
-          return dispatch(receiveEleRestaurants([]))
-        }
-      })
-      .catch(err => {
-        return dispatch(requestError(err))
-      })
-  }
-}
 
 function requestLoginEle (data) {
   return {type: REQUEST_LOGIN_ELE, data}
@@ -181,6 +155,34 @@ export function searchEleAddress (keyword) {
           })
         } else {
           return dispatch(receiveSearchEleAddress([]))
+        }
+      })
+      .catch(err => {
+        return dispatch(requestError(err))
+      })
+  }
+}
+
+
+const requestEleRestaurants = (data) => {
+  return {type: REQUEST_ELE_RESTAURANTS, data}
+}
+
+const receiveEleRestaurants = (data) => {
+  return {type: RECEIVE_ELE_RESTAURANTS, data}
+}
+
+export function fetchEleRestaurants(payload){
+  return dispatch => {
+    dispatch(requestEleRestaurants(payload))
+    fetch(`crawlers/get_ele_restaurants`, 'POST', payload)
+      .then(resp => {
+        if (resp.status === 200) {
+          return resp.json().then(json => {
+            return dispatch(receiveEleRestaurants(json))
+          })
+        } else {
+          return dispatch(receiveEleRestaurants([]))
         }
       })
       .catch(err => {

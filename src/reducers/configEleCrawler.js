@@ -13,7 +13,9 @@ const initState = {
   isSearchEleAddress: false,
   eleCities: {},
   address: null,
-  isFetchingRastaurants: false
+  isFetchingRastaurants: false,
+  restaurants: [],
+  hasMoreRestaurants: false
 }
 export default function configEleCrawler (state=initState, action) {
   switch (action.type) {
@@ -96,13 +98,16 @@ export default function configEleCrawler (state=initState, action) {
     })
     case REQUEST_ELE_RESTAURANTS:
       return Object.assign({}, state, {
-          isFetchingRastaurants: true
+          isFetchingRastaurants: true,
+          restaurants: []
       })
 
     case RECEIVE_ELE_RESTAURANTS:
+      const {restaurants} = state
       return Object.assign({}, state, {
-          ...action.data,
-          isFetchingRastaurants: false
+          restaurants: action.data,
+          isFetchingRastaurants: false,
+          hasMoreRestaurants: action.data.length > 1
       })
 
     default:

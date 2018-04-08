@@ -2,7 +2,10 @@ import React, { Component } from 'react'
 import { Steps, Card } from 'antd'
 import { connect } from 'react-redux'
 import LoginForm from './LoginForm'
-import { getEleSmsCode, error, loginEle, elePicCode, fetchCrawlerConfig, fetchEleCityList, searchEleAddress } from '../../actions/index'
+import {
+  getEleSmsCode, error, loginEle, elePicCode, fetchCrawlerConfig, fetchEleCityList,
+  searchEleAddress, fetchEleRestaurants
+} from '../../actions/index'
 import CrawlerConfig from './CrawlerConfig'
 
 const Step = Steps.Step
@@ -92,7 +95,7 @@ class CrawlerEle extends Component {
         </Card>
         {
           currentStep === 0 &&
-          <div>
+          <Card>
             <LoginForm
               onCommit={this.handleLogin}
               onCaptcha={this.handleGetCaptcha}
@@ -103,7 +106,7 @@ class CrawlerEle extends Component {
               image_base64={ele_image_base64}
               onPicCaptcha={this.handleGetPicCaptcha}
             />
-          </div>
+          </Card>
         }
         {
           currentStep === 1 && <CrawlerConfig {...this.props} />
@@ -119,7 +122,7 @@ class CrawlerEle extends Component {
 }
 
 const mapStateToProps = (state) => {
-  return Object.assign({}, state.crawlerConfig)
+  return Object.assign({}, state.configEleCrawler)
 }
 
 const mapDispatchToProps = (dispatch) => {
@@ -144,6 +147,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     searchEleAddress: (keyword) => {
       return dispatch(searchEleAddress(keyword))
+    },
+    fetchEleRestaurants: (data) => {
+      return dispatch(fetchEleRestaurants(data))
     }
   }
 }

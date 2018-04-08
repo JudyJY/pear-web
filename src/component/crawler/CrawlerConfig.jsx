@@ -1,8 +1,44 @@
 import React, { Component } from 'react'
-import { Row, Col, Select, Card, Input, Popover, Button, Tabs, Modal, List, Cascader, Spin, Icon, AutoComplete, Tree, message } from 'antd'
+import { Tag, Collapse, Table, Row, Col, Select, Card, Input, Popover, Button, Tabs, Modal, List, Cascader, Spin, Icon, AutoComplete, Tree, message } from 'antd'
 
 const TabPane = Tabs.TabPane
 const { Option, OptGroup } = Select
+
+const restaurantColumns = [
+    {
+        title: '店名',
+        dataIndex: 'name',
+        width: 150
+    }, {
+        title: '评分',
+        dataIndex: 'rating',
+        width: 100
+    }, {
+        title: '配送费',
+        dataIndex: 'float_delivery_fee',
+        width: 120
+    }, {
+        title: '评价配送时间(分钟)',
+        dataIndex: 'order_lead_time',
+        width: 150
+    }, {
+        title: '店铺图标',
+        dataIndex: 'image_path',
+        render: text => <img style={{ width: 70 }} src={`http://fuss10.elemecdn.com/${text}.${text.substring(32, text.length)}`} />,
+        width: 100
+    }, {
+        title: '地址',
+        dataIndex: 'address'
+    }
+]
+
+const configPanelStyle = {
+    background: 'white',
+    borderRadius: 0,
+    marginTop: 24,
+    border: 0,
+    overflow: 'hidden',
+}
 
 export default class CrawlerConfig extends Component {
 
@@ -10,7 +46,11 @@ export default class CrawlerConfig extends Component {
         super(props)
         this.state = {
             addressModalVisible: false,
-            selectedAddress: null
+            selectedAddress: null,
+            restaurantsOffset: 0,
+            restaurantsLimit: 24,
+            matchRestaurants: [],
+            selectedRestaurants: []
         }
     }
 
@@ -24,46 +64,81 @@ export default class CrawlerConfig extends Component {
     }
 
     onSelectAddress = (value) => {
-        this.setState({
+        this.setState(Object.assign({}, this.state, {
             addressModalVisible: false,
-            selectedAddress: value
+            selectedAddress: value,
+            restaurantsOffset: 0,
+            restaurantsLimit: 24
+        }), () => {
+            this.fetchEleRestaurants()
         })
     }
 
+    onSelectRestaurants = (selectedRowKeys, selectedRows) => {
+        const { selectedRestaurants } = this.state
+        this.setState(Object.assign({}, this.state, {
+            selectedRestaurants: selectedRows
+        }))
+    }
+
+    fetchEleRestaurants = () => {
+        const { selectedAddress, restaurantsOffset, restaurantsLimit } = this.state
+        const payload = {
+            geohash: selectedAddress.geohash,
+            latitude: selectedAddress.latitude,
+            longitude: selectedAddress.longitude,
+            offset: restaurantsOffset,
+            limit: restaurantsLimit
+        }
+        this.props.fetchEleRestaurants(payload)
+    }
+
+    handleSearchRestaurants = (value) => {
+        if (!value || value.length < 1) {
+            return
+        }
+        const { restaurants } = this.props
+        const matchRestaurants = restaurants.filter(item => {
+            if (item.name.indexOf(value) > -1) {
+                return item
+            }
+        })
+        this.setState(Object.assign({}, this.state, { matchRestaurants: matchRestaurants }))
+    }
+
+    selectMatchRestaurants = () => {
+
+    }
+
     render() {
-        const { isSearchEleAddress, address } = this.props
-        const { selectedAddress } = this.state
+        const { isSearchEleAddress, address, restaurants, hasMoreRestaurants, isFetchingRastaurants } = this.props
+        const { selectedAddress, restaurantsOffset, restaurantsLimit, matchRestaurants, selectedRestaurants } = this.state
+        const rowSelection = { onChange: this.onSelectRestaurants }
         return (
             <div>
-                <Card title="确定商圈" style={{ marginTop: 10 }}>
-                    <Row>
-                        <Col span={12}>
-                            商家所属商圈: {selectedAddress ?
-                                <Tree
-                                    defaultExpandAll>
-                                    {Object.keys(selectedAddress).map((key, index) => {
-                                        const value = selectedAddress[key]
-                                        return <Tree.TreeNode title={key} key={key}>
-                                            <Tree.TreeNode title={value} key={value} />
-                                        </Tree.TreeNode>
-                                    })}
-                                </Tree> : <div>请在右侧搜索确定 <Icon type="arrow-right" /></div>}
-                        </Col>
-                        <Col span={12}>
-                            <div style={{ width: 400 }}>
+                <Collapse
+                    defaultActiveKey={['configAddress']}
+                    activeKey={
+                        selectedAddress ? ['configRestaurant', 'configAddress'] : 'configAddress'
+                    }
+                    bordered={false}>
+                    <Collapse.Panel
+                        header={<h2>1 确定商圈</h2>}
+                        key="configAddress"
+                        disabled={selectedAddress ? true : false}
+                        style={configPanelStyle}>
+                        <div>
+                            <div>
                                 <Input.Search
                                     placeholder={"输入搜索地点"}
                                     onSearch={this.handleSearch}
-                                    enterButton
-                                />
-
+                                    enterButton />
                                 <Modal
                                     title="选择地点"
                                     visible={this.state.addressModalVisible}
                                     footer={null}
                                     closable
-                                    destroyOnClose
-                                >
+                                    destroyOnClose>
                                     <div style={{ maxHeight: 300, overflow: 'auto' }}>
                                         {address ?
                                             <List
@@ -81,12 +156,61 @@ export default class CrawlerConfig extends Component {
                                     </div>
                                 </Modal>
                             </div>
-                        </Col>
-                    </Row>
-                </Card>
-                <Card title="确定商家" style={{ marginTop: 10 }}>
-                </Card>
-            </div>
+                            <div style={{ marginTop: 10 }} >
+                                {selectedAddress && <div>在 <span style={{ color: 'red' }}>{selectedAddress.name}</span> 附近,有 <span style={{ color: 'blue' }}>{selectedAddress.count}</span> 家商店。</div>}
+                            </div>
+                        </div>
+                    </Collapse.Panel>
+                    <Collapse.Panel header={<h2 style={{ color: selectedAddress ? 'black' : 'grey' }}>2 选取将爬取的商家</h2>}
+                        key="configRestaurant"
+                        disabled={selectedAddress ? false : true}
+                        style={configPanelStyle}>
+                        {!selectedAddress &&
+                            <div style={{ textAlign: 'center' }}>
+                                <Icon type="minus-circle-o" />
+                                <p>请先确定商圈</p>
+                            </div>
+                        }
+                        {restaurants && selectedAddress &&
+                            <div>
+                                <AutoComplete
+                                    placeholder="搜索店名"
+                                    style={{ width: 300, margin: 10 }}
+                                    dataSource={matchRestaurants.map((item, index) => {
+                                        return <AutoComplete.Option
+                                            key={index}
+                                            value={`${item.id}`}>
+                                            {item.name}
+                                        </AutoComplete.Option>
+                                    })}
+                                    onSearch={this.handleSearchRestaurants}
+                                    onSelect={this.selectMatchRestaurants}
+                                />
+
+                                <Table
+                                    loading={isFetchingRastaurants}
+                                    rowSelection={rowSelection}
+                                    columns={restaurantColumns}
+                                    dataSource={restaurants}
+                                    scroll={{ y: 500 }}
+                                    pagination={{ pageSize: 20 }}
+                                    size="small" />
+
+                                {selectedRestaurants && <Card title="选取的商家" style={{marginTop: 10}}>
+                                    {selectedRestaurants.map(item => {
+                                        return <Tag key={item.id} closable onClose={null}>{item.name}</Tag>
+                                    })}
+                                </Card>}
+                            </div>
+                        }
+                    </Collapse.Panel>
+                    <Collapse.Panel
+                        header="1"
+                        key="3"
+                        style={configPanelStyle}>
+                    </Collapse.Panel>
+                </Collapse>
+            </div >
         )
     }
 }

@@ -49,7 +49,7 @@ class LoginForm extends Component {
                 {getFieldDecorator('pic_code', {
                   rules: [{ required: false, message: '请输入图片验证码!' }],
                 })(
-                  <Input placeholder="图片验证码" />
+                  <Input prefix={<Icon type="exception" style={{ color: 'rgba(0,0,0,.25)' }} />} placeholder="图片验证码" />
                 )}
               </Col>
               <Col span={12}>
@@ -67,7 +67,7 @@ class LoginForm extends Component {
               {getFieldDecorator('ele_sms_code', {
                 rules: [{ required: false, message: '请输入验证码!' }],
               })(
-                <Input placeholder="短信验证码" />
+                <Input placeholder="短信验证码" prefix={<Icon type="exception" style={{ color: 'rgba(0,0,0,.25)' }} />} />
               )}
             </Col>
             <Col span={12}>
