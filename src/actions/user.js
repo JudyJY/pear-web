@@ -1,4 +1,4 @@
-import { REQUEST_LOGIN, RECEIVE_LOGIN, REQUEST_USER_INFO, RECEIVE_USER_INFO, LOGOUT } from '../consts/actions'
+import { REQUEST_LOGIN, RECEIVE_LOGIN, REQUEST_USER_INFO, RECEIVE_USER_INFO, LOGOUT, REQUEST_SIGNUP, RECEIVE_SIGNUP} from '../consts/actions'
 import fetch from '../utils/fetch'
 import cookie from 'react-cookies'
 import { requestError } from './comm'
@@ -54,6 +54,35 @@ export function fetchUserInfo () {
         })
       }
     })
+      .catch(err => {
+        return dispatch(requestError(err))
+      })
+  }
+}
+
+function requetSignup (user) {
+  return {type: REQUEST_SIGNUP, user}
+}
+
+function receiveSignup (user, data, success = true) {
+  return {type: RECEIVE_SIGNUP, user, data: data, success: success}
+}
+
+export function fetchSignup (user) {
+  return dispatch => {
+    dispatch(requetSignup(user))
+    return fetch('auth/signup', 'POST', user)
+      .then(resp => {
+        if (resp.status === 200) {
+          resp.json().then(json => {
+            return dispatch(receiveSignup(user, json))
+          })
+        } else {
+          resp.json().then(json => {
+            return dispatch(receiveSignup(user, json, false))
+          })
+        }
+      })
       .catch(err => {
         return dispatch(requestError(err))
       })

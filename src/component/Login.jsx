@@ -13,7 +13,8 @@ const LoginForm = Form.create()(
           visible={visible}
           title="请先登录"
           okText="登录"
-          cancelText="立即注册"          
+          cancelText="立即注册" 
+          closable={false}
           footer={[
             <Button key={1} onClick={onCancel}>注册</Button>,
             <Button key={2} type="primary" loading={isFetching} onClick={onCreate}>登录</Button>
@@ -27,7 +28,10 @@ const LoginForm = Form.create()(
             </FormItem>
             <FormItem>
               {getFieldDecorator('password', { rules: [{ required: true, message: '密码不能为空' }] })(
-                <Input prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />} type="password" placeholder="密码" />
+                <Input 
+                prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />} 
+                type="password" placeholder="密码"
+                onPressEnter={onCreate} />
               )}
             </FormItem>
           </Form>

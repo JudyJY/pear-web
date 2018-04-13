@@ -1,10 +1,11 @@
 import fetch from 'cross-fetch'
 
-const baseUrl = 'http://localhost:9999/'
+const baseUrl = 'http://192.168.1.6:9999/' 
 
+//封装网络请求
 export default (endPoint, method, data = null) => {
   // data should -> {}
-  if (endPoint.search('http://') === 0 || endPoint.search('https://') === 0) {
+  if (endPoint.search('http://') === 0 || endPoint.search('https://') === 0) {  
     return fetch(endPoint, method)
   }
   let config = {
