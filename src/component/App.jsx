@@ -4,8 +4,9 @@ import LoginForm from './Login'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
 import { fetchLogin, fetchUserInfo, logout } from '../actions/index'
-import logo from '../logo.svg'
+import config from '../utils/config'
 
+const { logo, footerText } = config
 const { SubMenu } = Menu;
 const { Header, Content, Sider, Footer } = Layout;
 
@@ -61,6 +62,11 @@ class App extends Component {
 
   render() {
     const { children, logined, name, isFetching, requestErrorMsg } = this.props
+    const { pathname } = this.props.history.location
+    console.log(pathname)
+    if (pathname.includes('login') || pathname.includes('signup')) {
+      return children
+    }
     return (
       <Layout style={{ minHeight: '100vh' }} theme="light">
         <BackTop target={() => document.getElementById('content')} />
@@ -76,7 +82,7 @@ class App extends Component {
             {!this.state.collapsed && <span>Spider</span>}
           </div>
           <Menu theme="light"
-            defaultOpenKeys={['/crawlers','/user']}
+            defaultOpenKeys={['/crawlers', '/user']}
             defaultSelectedKeys={[this.props.location.pathname]}
             selectedKeys={[this.props.location.pathname]}
             mode="inline" onClick={this.handleMenuClick}>
@@ -116,38 +122,30 @@ class App extends Component {
                 onClick={this.toggle}
                 style={{ marginLeft: 10, border: 'none', width: 48 }} />
             </div>
-            {logined &&
-              <div style={{ textAlign: 'right', paddingRight: '10px' }}>
-                <Dropdown overlay={
-                  <Menu onClick={this.handleLogout}>
-                    <Menu.Item>
-                      注销
+            <div style={{ textAlign: 'right', paddingRight: '10px' }}>
+              <Dropdown overlay={
+                <Menu onClick={this.handleLogout}>
+                  <Menu.Item>
+                    注销
                     </Menu.Item>
-                  </Menu>
-                }>
-                  <Avatar>{name}</Avatar>
-                </Dropdown>
-              </div>
-            }
+                </Menu>
+              }>
+                <Avatar>{name}</Avatar>
+              </Dropdown>
+            </div>
+
           </Header>
           <Content style={{ margin: "16px 0" }}>
             <div style={{ padding: 24, minHeight: 360 }}>
-              {logined && children}
+              {children}
             </div>
           </Content>
           <Footer style={{ textAlign: 'center' }}>
-            Ant Design ©2016 Created by Ant UED
+            Spider ©2018 Created by Ant UED
         </Footer>
-          <LoginForm
-            wrappedComponentRef={this.saveFormRef}
-            visible={!logined}
-            onCancel={this.handleSignup}
-            onCreate={this.handleLogin}
-            isFetching={isFetching}
-          />
         </Layout>
       </Layout>
-    );
+    )
   }
 }
 
