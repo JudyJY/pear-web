@@ -18,7 +18,6 @@ import { logger, crashReporter } from './utils/middleware'
 import thunkMiddleware from 'redux-thunk'
 import { composeWithDevTools } from 'redux-devtools-extension'
 import Login from './component/Login'
-import SignUp from './component/SignUp'
 import cookies from 'react-cookies'
 
 let store = createStore(appStore, composeWithDevTools(applyMiddleware(thunkMiddleware, logger, crashReporter)))
@@ -29,6 +28,7 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
       <Component {...props} /> :
       <Redirect to={{ pathname: "/login", state: { from: props.location } }} />
     )}
+  />
 )
 
 render((<Provider store={store}>

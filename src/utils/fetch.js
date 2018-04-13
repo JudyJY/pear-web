@@ -1,6 +1,7 @@
 import fetch from 'cross-fetch'
+import config from './config'
 
-const baseUrl = 'http://192.168.1.6:9999/' 
+const {baseUrl} = config
 
 //封装网络请求
 export default (endPoint, method, data = null) => {

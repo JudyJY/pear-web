@@ -1,10 +1,10 @@
-const API = 'http://localhost:9999/'
 
 export default {
+	baseUrl: 'http://192.168.1.6:9999/',
     api: {
-        userLogin: `${API}/auth/login`,
-        userSignUp: `${API}/auth/signup`,
-        userInfo: `${API}/user`,
+        userLogin: `auth/login`,
+        userSignUp: `auth/signup`,
+        userInfo: `user`,
     },
     footerText: '数据之道 © 2018 Pear',
     logo: '../logo.svg'
