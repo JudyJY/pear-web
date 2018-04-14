@@ -1,12 +1,15 @@
 import React from 'react'
+import MainContainer from './container/MainContainer'
 
 class Task extends React.Component {
-    
-    render(){
+
+    render() {
         return (
-            Array(100).fill().map( (_, i)=> {
-                return <p key={i}>{i} 1234</p>
-            })
+            <MainContainer>
+                {Array(100).fill().map((_, i) => {
+                    return <p key={i}>{i} 1234</p>
+                })}
+            </MainContainer>
         )
     }
 }

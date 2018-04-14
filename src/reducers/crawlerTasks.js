@@ -1,7 +1,7 @@
 import {REQUEST_CRAWLER_TASKS, RECEIVE_CRAWLER_TASKS} from '../consts/actions'
 
 export default function crawlerTasks(state={
-  isFetching: true,
+  isFetching: false,
 }, action){
   switch (action.type) {
     case REQUEST_CRAWLER_TASKS:

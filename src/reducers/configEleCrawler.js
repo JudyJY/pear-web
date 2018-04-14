@@ -102,8 +102,7 @@ export default function configEleCrawler (state=initState, action) {
           restaurants: []
       })
 
-    case RECEIVE_ELE_RESTAURANTS:
-      const {restaurants} = state
+    case RECEIVE_ELE_RESTAURANTS:      
       return Object.assign({}, state, {
           restaurants: action.data,
           isFetchingRastaurants: false,

@@ -1,8 +1,5 @@
 import React, { Component } from 'react'
-import { Tag, Collapse, Table, Row, Col, Select, Card, Input, Popover, Button, Tabs, Modal, List, Cascader, Spin, Icon, AutoComplete, Tree, message } from 'antd'
-
-const TabPane = Tabs.TabPane
-const { Option, OptGroup } = Select
+import { Tag, Collapse, Table, Card, Input, Button, Modal, List, Spin, Icon, AutoComplete, message } from 'antd'
 
 const restaurantColumns = [
     {
@@ -24,7 +21,7 @@ const restaurantColumns = [
     }, {
         title: '店铺图标',
         dataIndex: 'image_path',
-        render: text => <img style={{ width: 70 }} src={`http://fuss10.elemecdn.com/${text}.${text.substring(32, text.length)}`} />,
+        render: text => <img style={{ width: 70 }} alt={text} src={`http://fuss10.elemecdn.com/${text}.${text.substring(32, text.length)}`} />,
         width: 100
     }, {
         title: '地址',
@@ -75,7 +72,6 @@ export default class CrawlerConfig extends Component {
     }
 
     onSelectRestaurants = (selectedRowKeys, selectedRows) => {
-        const { selectedRestaurants } = this.state
         this.setState(Object.assign({}, this.state, {
             selectedRestaurants: selectedRows
         }))
@@ -111,8 +107,8 @@ export default class CrawlerConfig extends Component {
     }
 
     render() {
-        const { isSearchEleAddress, address, restaurants, hasMoreRestaurants, isFetchingRastaurants } = this.props
-        const { selectedAddress, restaurantsOffset, restaurantsLimit, matchRestaurants, selectedRestaurants } = this.state
+        const { isSearchEleAddress, address, restaurants, isFetchingRastaurants } = this.props
+        const { selectedAddress, matchRestaurants, selectedRestaurants } = this.state
         const rowSelection = { onChange: this.onSelectRestaurants }
         return (
             <div>
@@ -196,7 +192,7 @@ export default class CrawlerConfig extends Component {
                                     pagination={{ pageSize: 20 }}
                                     size="small" />
 
-                                {selectedRestaurants && <Card title="选取的商家" style={{marginTop: 10}}>
+                                {selectedRestaurants && <Card title="选取的商家" style={{ marginTop: 10 }}>
                                     {selectedRestaurants.map(item => {
                                         return <Tag key={item.id} closable onClose={null}>{item.name}</Tag>
                                     })}

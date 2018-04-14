@@ -1,8 +1,5 @@
 import React, { Component } from 'react'
-import { Form, Icon, Input, Button, Checkbox, Row, Col, Layout, Menu, Breadcrumb } from 'antd'
-import { connect } from 'react-redux'
-import { withRouter, Link } from 'react-router-dom'
-import logo from '../../logo.svg'
+import {Layout} from 'antd'
 
 class AuthContainer extends Component {
   render() {

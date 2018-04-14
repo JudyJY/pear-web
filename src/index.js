@@ -47,7 +47,7 @@ render((<Provider store={store}>
         <Route path="/signup" component={SignUp} />
         <PrivateRoute path="*"><Redirect to="/dashborad" /></PrivateRoute>
       </Switch>
-    </App>    
+    </App>
   </BrowserRouter>
 </Provider>), document.getElementById('root'))
 

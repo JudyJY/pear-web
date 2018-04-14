@@ -2,6 +2,7 @@ import { REQUEST_LOGIN, RECEIVE_LOGIN, REQUEST_USER_INFO, RECEIVE_USER_INFO, LOG
 import fetch from '../utils/fetch'
 import cookie from 'react-cookies'
 import { requestError } from './comm'
+import {message} from 'antd'
 
 function requetLogin (user) {
   return {type: REQUEST_LOGIN, user}
@@ -18,16 +19,19 @@ export function fetchLogin (user) {
       .then(resp => {
         if (resp.status === 200) {
           resp.json().then(json => {
+            cookie.save('u_id', json.user.id)
+            message.success('登录成功')
             return dispatch(receiveLogin(user, json))
           })
         } else {
           resp.json().then(json => {
+            message.error(json.message)
             return dispatch(receiveLogin(user, json, false))
           })
         }
       })
       .catch(err => {
-        return dispatch(requestError(err))
+        return dispatch(receiveLogin(user, {message: '网络错误'}, false))
       })
   }
 }
@@ -55,7 +59,7 @@ export function fetchUserInfo () {
       }
     })
       .catch(err => {
-        return dispatch(requestError(err))
+        return dispatch(receiveUserInfo({message: '网络错误'}, false))
       })
   }
 }
@@ -75,16 +79,18 @@ export function fetchSignup (user) {
       .then(resp => {
         if (resp.status === 200) {
           resp.json().then(json => {
+            message.success('注册成功，请登录')
             return dispatch(receiveSignup(user, json))
           })
         } else {
           resp.json().then(json => {
+            message.error(json.message)
             return dispatch(receiveSignup(user, json, false))
           })
         }
       })
       .catch(err => {
-        return dispatch(requestError(err))
+        return dispatch(receiveSignup(user, {message: '网络错误'}, false))
       })
   }
 }
